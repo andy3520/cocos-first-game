@@ -74,7 +74,9 @@ cc.Class({
     this.spawnNewStar();
   },
 
-  start() {},
+  start() {
+    document.getElementById("GameCanvas").focus();
+  },
 
   gainScore() {
     this.score += 1;

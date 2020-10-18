@@ -1,18 +1,8 @@
 {
-  "migrate-history": [
-    "cloud-function"
-  ],
-  "group-list": [
-    "default"
-  ],
-  "collision-matrix": [
-    [
-      true
-    ]
-  ],
-  "excluded-modules": [
-    "3D Physics/Builtin"
-  ],
+  "migrate-history": ["cloud-function"],
+  "group-list": ["default"],
+  "collision-matrix": [[true]],
+  "excluded-modules": ["3D Physics/Builtin"],
   "preview-port": 7456,
   "design-resolution-width": 960,
   "design-resolution-height": 640,
