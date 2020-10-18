@@ -6,82 +6,99 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 cc.Class({
-    extends: cc.Component,
+  extends: cc.Component,
 
-    properties: {
-        jumpHeight: 0,
-        jumpDuration: 0,
-        maxMoveSpeed: 0,
-        accel: 0,
+  properties: {
+    jumpHeight: 0,
+    jumpDuration: 0,
+    maxMoveSpeed: 0,
+    accel: 0,
+
+    jumpAudio: {
+      default: null,
+      type: cc.AudioClip,
     },
+  },
 
-    setJumpAction: function () {
-        let jumpUp = cc.moveBy(this.jumpDuration, cc.v2(0, this.jumpHeight)).easing(cc.easeCubicActionOut())
-        let jumpDown = cc.moveBy(this.jumpDuration, cc.v2(0, -this.jumpHeight)).easing(cc.easeCubicActionIn())
+  setJumpAction: function () {
+    let jumpUp = cc
+      .moveBy(this.jumpDuration, cc.v2(0, this.jumpHeight))
+      .easing(cc.easeCubicActionOut());
+    let jumpDown = cc
+      .moveBy(this.jumpDuration, cc.v2(0, -this.jumpHeight))
+      .easing(cc.easeCubicActionIn());
 
-        return cc.repeatForever(cc.sequence(jumpUp, jumpDown))
-    },
+    let audioCallback = cc.callFunc(this.playJumpSound, this);
 
-    onKeyDown(event) {
-        switch (event.keyCode) {
-            case cc.macro.KEY.a:
-                this.accLeft = true
-                break;
-            case cc.macro.KEY.d:
-                this.accRight = true
-                break;
-            default:
-                break;
-        }
-    },
+    return cc.repeatForever(cc.sequence(jumpUp, jumpDown, audioCallback));
+  },
 
-    onKeyUp(event) {
-        switch (event.keyCode) {
-            case cc.macro.KEY.a:
-                this.accLeft = false
-                break;
-            case cc.macro.KEY.d:
-                this.accRight = false
-                break;
-            default:
-                break;
-        }
-    },
+  playJumpSound() {
+    cc.audioEngine.playEffect(this.jumpAudio, false);
+  },
 
-    // LIFE-CYCLE CALLBACKS:
+  onKeyDown(event) {
+    switch (event.keyCode) {
+      case cc.macro.KEY.a:
+      case cc.macro.KEY.left:
+        this.accLeft = true;
+        break;
+      case cc.macro.KEY.d:
+      case cc.macro.KEY.right:
+        this.accRight = true;
+        break;
+      default:
+        break;
+    }
+  },
 
-    onLoad() {
-        this.jumpAction = this.setJumpAction()
-        this.node.runAction(this.jumpAction)
+  onKeyUp(event) {
+    switch (event.keyCode) {
+      case cc.macro.KEY.a:
+      case cc.macro.KEY.left:
+        this.accLeft = false;
+        break;
+      case cc.macro.KEY.d:
+      case cc.macro.KEY.right:
+        this.accRight = false;
+        break;
+      default:
+        break;
+    }
+  },
 
-        this.accLeft = false
-        this.accRight = false
+  // LIFE-CYCLE CALLBACKS:
 
-        this.xSpeed = 0
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this)
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this)
-    },
+  onLoad() {
+    this.jumpAction = this.setJumpAction();
+    this.node.runAction(this.jumpAction);
 
-    onDestroy() {
-        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this)
-        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this)
-    },
+    this.accLeft = false;
+    this.accRight = false;
 
-    start () {
+    this.xSpeed = 0;
+    cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+    cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+  },
 
-    },
+  onDestroy() {
+    cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+    cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+  },
 
-    update(dt) {
-        if (this.accLeft) {
-            this.xSpeed -= this.accel * dt
-        } else if (this.accRight) {
-            this.xSpeed += this.accel * dt
-        }
+  start() {},
 
-        if (Math.abs(this.xSpeed) > this.maxMoveSpeed) {
-            this.xSpeed = this.maxMoveSpeed * this.xSpeed / Math.abs(this.xSpeed)
-        }
+  update(dt) {
+    if (this.accLeft) {
+      this.xSpeed -= this.accel * dt;
+    } else if (this.accRight) {
+      this.xSpeed += this.accel * dt;
+    }
 
-        this.node.x += this.xSpeed * dt
-    },
+    if (Math.abs(this.xSpeed) > this.maxMoveSpeed) {
+      this.xSpeed = (this.maxMoveSpeed * this.xSpeed) / Math.abs(this.xSpeed);
+    }
+
+    this.node.x += this.xSpeed * dt;
+  },
 });
